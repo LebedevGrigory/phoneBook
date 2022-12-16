@@ -100,7 +100,7 @@ const data = [
 
   const createForm = () => {
     const overlay = document.createElement('div');
-    overlay.classList.add('from-overlay');
+    overlay.classList.add('form-overlay');
 
     const form = document.createElement('form');
     form.classList.add('form');
@@ -138,7 +138,7 @@ const data = [
       },
     ]);
 
-    form.append('...buttonGroup.btns');
+    form.append(...buttonGroup.btns);
 
     overlay.append(form);
 
@@ -147,7 +147,9 @@ const data = [
       form,
     };
   };
+  
 
+  
   const createFooter = () => {
     const footer = document.createElement('footer');
     footer.classList.add('footer');
@@ -193,6 +195,10 @@ const data = [
 
     return {
       list: table.tbody,
+      logo,
+      btnAdd: buttonGroup.btns[0],
+      formOverlay: form.overlay,
+      form: form.form,
     };
   };
 
@@ -215,6 +221,7 @@ const data = [
     const phoneLink = document.createElement('a');
     phoneLink.href = `tel:${phone}`;
     phoneLink.textContent = phone;
+    tr.phoneLink = phoneLink;
     tdPhone.append(phoneLink);
     tr.append(tdDel, tdName, tdSurname, tdPhone);
 
@@ -224,14 +231,51 @@ const data = [
   const renderContacts = (elem, data) => {
     const allRow = data.map(createRow);
     elem.append(...allRow);
+    return allRow;
   };
 
+  const hoverRow = (allRow, logo) => {
+    const text = logo.textContent;
+    allRow.forEach(contact => {
+      contact.addEventListener('mouseenter', () => {
+        logo.textContent = contact.phoneLink.textContent;
+      });
+      contact.addEventListener('mouseleave', () => {
+        logo.textContent = text;
+      });
+    });
+  };
+  
+  
   const init = (selectorApp, title) => {
     const app = document.querySelector(selectorApp);
     const phoneBook = renderPhoneBook(app, title);
 
-    const {list} = phoneBook;
-    renderContacts(list, data);
+    const {list, logo, btnAdd, formOverlay, form,} = phoneBook;
+    
+    const allRow = renderContacts(list, data);
+    const closeModal = document.querySelector('.close');
+    console.log("🚀 ~ file: script.js:258 ~ init ~ closeModal", closeModal)
+    
+    hoverRow(allRow, logo);
+
+    btnAdd.addEventListener('click', {
+      handleEvent() {
+        formOverlay.classList.add('is-visible');       
+      },
+    });
+
+    form.addEventListener('click', event => {
+      event.stopPropagation();
+    });
+    
+    formOverlay.addEventListener('click', () => {
+      formOverlay.classList.remove('is-visible');
+    });
+    closeModal.addEventListener('click', () => {
+      formOverlay.classList.remove('is-visible');
+    });
   };
   window.phoneBookInit = init;
 }
+
